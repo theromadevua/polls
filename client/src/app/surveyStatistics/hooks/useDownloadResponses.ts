@@ -28,10 +28,8 @@ export const useDownloadResponses = ({ getFormattedAnswer }: UseDownloadResponse
   ): ExcelJS.Worksheet => {
     const worksheet = workbook.addWorksheet('Survey Responses');
 
-    // Add headers
     worksheet.addRow(headers);
 
-    // Style headers
     const headerRow = worksheet.getRow(1);
     headerRow.font = {
       bold: true,
@@ -57,7 +55,6 @@ export const useDownloadResponses = ({ getFormattedAnswer }: UseDownloadResponse
         response._id,
       ];
 
-      // Add answers for each question
       surveyData.questions.forEach((question:any) => {
         const answerObj = response.answers?.find((a:any) => a.questionId === question._id);
         const formattedAnswer = getFormattedAnswer(question, answerObj?.answer);
@@ -69,7 +66,6 @@ export const useDownloadResponses = ({ getFormattedAnswer }: UseDownloadResponse
   };
 
   const formatWorksheet = (worksheet: ExcelJS.Worksheet): void => {
-    // Adjust column widths
     worksheet.columns.forEach((column: any) => {
       let maxLength = 0;
       column.eachCell({ includeEmpty: true }, (cell: any) => {
@@ -78,10 +74,9 @@ export const useDownloadResponses = ({ getFormattedAnswer }: UseDownloadResponse
           maxLength = columnLength;
         }
       });
-      column.width = Math.min(maxLength + 2, 50); // Max width of 50 characters
+      column.width = Math.min(maxLength + 2, 50); 
     });
 
-    // Add borders to all cells
     worksheet.eachRow(row => {
       row.eachCell(cell => {
         cell.border = {
@@ -109,20 +104,15 @@ export const useDownloadResponses = ({ getFormattedAnswer }: UseDownloadResponse
     try {
       setDownloadState({ isDownloading: true, error: null });
 
-      // Create workbook and headers
       const workbook = new ExcelJS.Workbook();
       const headers = ['Timestamp', 'Response ID', ...surveyData.questions.map((q:any) => q.questionText)];
       
-      // Setup worksheet with headers
       const worksheet = setupWorksheet(workbook, headers);
       
-      // Add data rows
       addDataRows(worksheet, surveyData, responses);
       
-      // Format worksheet
       formatWorksheet(worksheet);
 
-      // Generate and download file
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
