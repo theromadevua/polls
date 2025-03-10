@@ -3,6 +3,7 @@
 # Polls - application for creating simple surveys
 
 Stack: 
+- Typescript
 - Next js
 - Redux
 - Node js
